@@ -1,60 +1,75 @@
 'use strict';
 
 const express = require('express');
-const { Book } = require('../models');
 
 const router = express.Router();
 
-router.post('/book', async (req, res, next) => {
+const {
+  bookCollection,
+} = require('../models');
+
+router.post('/books', async (req, res, next) => {
   try {
-    const record = await Book.create(req.body);
-    res.status(201).json(record);
+    const book = await bookCollection.create(req.body);
+
+    res.status(201).json(book);
   } catch (error) {
     next(error);
   }
 });
 
-router.get('/book', async (req, res, next) => {
+router.get('/books', async (req, res, next) => {
   try {
-    const records = await Book.findAll();
-    res.status(200).json(records);
+    const books = await bookCollection.read();
+
+    res.status(200).json(books);
   } catch (error) {
     next(error);
   }
 });
 
-router.get('/book/:id', async (req, res, next) => {
+router.get('/books/:id', async (req, res, next) => {
   try {
-    const record = await Book.findByPk(req.params.id);
-    res.status(200).json(record);
-  } catch (error) {
-    next(error);
-  }
-});
+    const book = await bookCollection.read(req.params.id);
 
-router.put('/book/:id', async (req, res, next) => {
-  try {
-    const record = await Book.findByPk(req.params.id);
-
-    if (!record) {
-      return res.status(404).json({ message: 'Book not found' });
+    if (!book) {
+      return res.status(404).json({
+        message: 'Book not found',
+      });
     }
 
-    await record.update(req.body);
+    const result = book.toJSON();
 
-    res.status(200).json(record);
+    result.author = `/authors/${book.authorId}`;
+
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
 });
 
-router.delete('/book/:id', async (req, res, next) => {
+router.put('/books/:id', async (req, res, next) => {
   try {
-    const record = await Book.findByPk(req.params.id);
+    const book = await bookCollection.update(
+      req.params.id,
+      req.body
+    );
 
-    if (record) {
-      await record.destroy();
+    if (!book) {
+      return res.status(404).json({
+        message: 'Book not found',
+      });
     }
+
+    res.status(200).json(book);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/books/:id', async (req, res, next) => {
+  try {
+    await bookCollection.delete(req.params.id);
 
     res.status(200).json(null);
   } catch (error) {
@@ -63,3 +78,4 @@ router.delete('/book/:id', async (req, res, next) => {
 });
 
 module.exports = router;
+

@@ -1,8 +1,8 @@
 'use strict';
 
-module.exports = (req, res) => {
-  res.status(404).json({
-    error: 404,
-    message: 'Not Found',
+module.exports = (err, req, res, next) => {
+  res.status(500).json({
+    status: 500,
+    message: err.message || 'Internal Server Error',
   });
 };

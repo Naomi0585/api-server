@@ -1,116 +1,166 @@
 'use strict';
 
-const request = require('supertest');
+const supertest = require('supertest');
 
 const { app } = require('../src/server');
 const { db } = require('../src/models');
 
+const request = supertest(app);
+
 beforeAll(async () => {
-  await db.sync({ force: true });
+  await db.sync();
 });
 
 afterAll(async () => {
+  await db.drop();
   await db.close();
 });
 
 describe('API Server', () => {
 
-  test('404 on a bad route', async () => {
-    const response = await request(app).get('/bad-route');
+  // -------------------------
+  // 404 TESTS
+  // -------------------------
+
+  test('returns 404 on a bad route', async () => {
+    const response = await request.get('/not-a-route');
 
     expect(response.status).toEqual(404);
   });
 
-  test('404 on a bad method', async () => {
-    const response = await request(app).patch('/food');
+  test('returns 404 on a bad method', async () => {
+    const response = await request.patch('/authors');
 
     expect(response.status).toEqual(404);
   });
 
-test('creates a food record', async () => {
-  const response = await request(app)
-    .post('/food')
-    .send({
-      name: 'Pizza',
-      category: 'Dinner',
-      calories: 800,
-    });
 
-  expect(response.status).toEqual(201);
-  expect(response.body.name).toEqual('Pizza');
-  expect(response.body.category).toEqual('Dinner');
-  expect(response.body.calories).toEqual(800);
-  expect(response.body.id).toBeDefined();
-});
+  // -------------------------
+  // AUTHOR CRUD TESTS
+  // -------------------------
 
-test('reads a list of food records', async () => {
-  const response = await request(app).get('/food');
+  test('creates an author using POST', async () => {
+    const response = await request
+      .post('/authors')
+      .send({
+        name: 'J.R.R. Tolkien',
+        country: 'United Kingdom',
+      });
 
-  expect(response.status).toEqual(200);
-  expect(Array.isArray(response.body)).toBe(true);
-});
+    expect(response.status).toEqual(201);
+    expect(response.body.name).toEqual('J.R.R. Tolkien');
+    expect(response.body.country).toEqual('United Kingdom');
+    expect(response.body.id).toBeDefined();
+  });
 
-test('reads one food record', async () => {
-  const created = await request(app)
-    .post('/food')
-    .send({
-      name: 'Tacos',
-      category: 'Dinner',
-      calories: 500,
-    });
+  test('reads a list of authors using GET', async () => {
+    const response = await request.get('/authors');
 
-  const id = created.body.id;
+    expect(response.status).toEqual(200);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBeGreaterThan(0);
+  });
 
-  const response = await request(app).get(`/food/${id}`);
+  test('reads one author using GET', async () => {
+    const response = await request.get('/authors/1');
 
-  expect(response.status).toEqual(200);
-  expect(response.body.id).toEqual(id);
-  expect(response.body.name).toEqual('Tacos');
-  expect(response.body.category).toEqual('Dinner');
-  expect(response.body.calories).toEqual(500);
-});
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(1);
+    expect(response.body.name).toEqual('J.R.R. Tolkien');
+  });
 
-test('updates a food record', async () => {
-  const created = await request(app)
-    .post('/food')
-    .send({
-      name: 'Burger',
-      category: 'Lunch',
-      calories: 600,
-    });
+  test('updates an author using PUT', async () => {
+    const response = await request
+      .put('/authors/1')
+      .send({
+        country: 'England',
+      });
 
-  const id = created.body.id;
+    expect(response.status).toEqual(200);
+    expect(response.body.country).toEqual('England');
+  });
 
-  const response = await request(app)
-    .put(`/food/${id}`)
-    .send({
-      name: 'Cheeseburger',
-      category: 'Lunch',
-      calories: 700,
-    });
 
-  expect(response.status).toEqual(200);
-  expect(response.body.id).toEqual(id);
-  expect(response.body.name).toEqual('Cheeseburger');
-  expect(response.body.category).toEqual('Lunch');
-  expect(response.body.calories).toEqual(700);
-});
+  // -------------------------
+  // BOOK CRUD TESTS
+  // -------------------------
 
-test('deletes a food record', async () => {
-  const created = await request(app)
-    .post('/food')
-    .send({
-      name: 'Salad',
-      category: 'Lunch',
-      calories: 300,
-    });
+  test('creates a book using POST', async () => {
+    const response = await request
+      .post('/books')
+      .send({
+        title: 'The Hobbit',
+        genre: 'Fantasy',
+        authorId: 1,
+      });
 
-  const id = created.body.id;
+    expect(response.status).toEqual(201);
+    expect(response.body.title).toEqual('The Hobbit');
+    expect(response.body.genre).toEqual('Fantasy');
+    expect(response.body.authorId).toEqual(1);
+    expect(response.body.id).toBeDefined();
+  });
 
-  const response = await request(app).delete(`/food/${id}`);
+  test('reads a list of books using GET', async () => {
+    const response = await request.get('/books');
 
-  expect(response.status).toEqual(200);
-  expect(response.body).toEqual(null);
-});
+    expect(response.status).toEqual(200);
+    expect(Array.isArray(response.body)).toBe(true);
+    expect(response.body.length).toBeGreaterThan(0);
+  });
+
+  test('reads one book using GET', async () => {
+    const response = await request.get('/books/1');
+
+    expect(response.status).toEqual(200);
+    expect(response.body.id).toEqual(1);
+    expect(response.body.title).toEqual('The Hobbit');
+  });
+
+  test('updates a book using PUT', async () => {
+    const response = await request
+      .put('/books/1')
+      .send({
+        genre: 'High Fantasy',
+      });
+
+    expect(response.status).toEqual(200);
+    expect(response.body.genre).toEqual('High Fantasy');
+  });
+
+
+  // -------------------------
+  // ASSOCIATION TEST
+  // -------------------------
+
+  test('author includes associated books', async () => {
+    const response = await request.get('/authors/1');
+
+    expect(response.status).toEqual(200);
+
+    // Sequelize usually names the hasMany property "Books"
+    expect(response.body.Books).toBeDefined();
+    expect(Array.isArray(response.body.Books)).toBe(true);
+    expect(response.body.Books[0].title).toEqual('The Hobbit');
+  });
+
+
+  // -------------------------
+  // DELETE TESTS
+  // -------------------------
+
+  test('deletes a book using DELETE', async () => {
+    const response = await request.delete('/books/1');
+
+    expect(response.status).toEqual(200);
+    expect(response.body).toBeNull();
+  });
+
+  test('deletes an author using DELETE', async () => {
+    const response = await request.delete('/authors/1');
+
+    expect(response.status).toEqual(200);
+    expect(response.body).toBeNull();
+  });
 
 });
