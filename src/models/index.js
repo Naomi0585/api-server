@@ -1,21 +1,37 @@
 'use strict';
 
 const { Sequelize, DataTypes } = require('sequelize');
-const foodModel = require('./food');
+
+const authorModel = require('./author');
 const bookModel = require('./book');
+const Collection = require('./collection-class');
 
-const DATABASE_URL =
-  process.env.DATABASE_URL || 'sqlite::memory:';
-
-const sequelize = new Sequelize(DATABASE_URL, {
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: process.env.NODE_ENV === 'test' ? ':memory:' : './database.sqlite',
   logging: false,
 });
 
-const Food = foodModel(sequelize, DataTypes);
+const Author = authorModel(sequelize, DataTypes);
 const Book = bookModel(sequelize, DataTypes);
+
+Author.hasMany(Book, {
+  foreignKey: 'authorId',
+  sourceKey: 'id',
+});
+
+Book.belongsTo(Author, {
+  foreignKey: 'authorId',
+  targetKey: 'id',
+});
+
+const authorCollection = new Collection(Author);
+const bookCollection = new Collection(Book);
 
 module.exports = {
   db: sequelize,
-  Food,
+  Author,
   Book,
+  authorCollection,
+  bookCollection,
 };

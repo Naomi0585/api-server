@@ -3,15 +3,14 @@
 require('dotenv').config();
 
 const { db } = require('./src/models');
-const { start } = require('./src/server');
+const server = require('./src/server');
 
 const PORT = process.env.PORT || 3001;
 
 db.sync()
   .then(() => {
-    console.log('Database connected');
-    start(PORT);
+    server.start(PORT);
   })
   .catch((error) => {
-    console.error('Database connection error:', error);
+    console.error(error);
   });
