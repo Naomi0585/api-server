@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-     "test": "cross-env NODE_ENV=test jest --verbose --runInBand"
+    "test": "cross-env NODE_ENV=test jest --verbose --runInBand"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,8 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "pg": "^8.23.0",
+    "pg": "^8.23.1",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.8",
     "sequelize-cli": "^6.6.5",
     "sqlite3": "^6.0.1"

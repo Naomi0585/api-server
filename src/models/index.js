@@ -6,11 +6,30 @@ const authorModel = require('./author');
 const bookModel = require('./book');
 const Collection = require('./collection-class');
 
-const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: process.env.NODE_ENV === 'test' ? ':memory:' : './database.sqlite',
-  logging: false,
-});
+let sequelize;
+
+if (process.env.NODE_ENV === 'test') {
+  sequelize = new Sequelize({
+    dialect: 'sqlite',
+    storage: ':memory:',
+    logging: false,
+  });
+} else {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL is not defined');
+  }
+
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
+    dialect: 'postgres',
+    logging: false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
+  });
+}
 
 const Author = authorModel(sequelize, DataTypes);
 const Book = bookModel(sequelize, DataTypes);

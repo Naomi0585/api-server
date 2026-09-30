@@ -52,3 +52,89 @@ Testing includes:
 
 * PR link: https://github.com/Naomi0585/api-server/pull/2 
 * Deployed site: https://api-server-wp74.onrender.com
+
+## Lab 04 - Data Modeling
+
+### Database Models
+
+This API uses two related Sequelize models:
+
+- Author
+- Book
+
+An Author can have many Books, and each Book belongs to one Author.
+
+### CRUD Operations
+
+The API supports:
+
+- POST - Create records
+- GET - Read records
+- PUT - Update records
+- DELETE - Delete records
+
+### Model Association
+
+Author hasMany Books.
+
+Book belongsTo Author.
+
+### Testing
+
+Tests include:
+
+- 404 bad route
+- 404 bad method
+- POST
+- GET all
+- GET one
+- PUT
+- DELETE
+
+### Pull Request
+
+Lab 04 PR:## Lab 04 - Data Modeling
+
+### Database Models
+
+This API uses two related Sequelize models:
+
+- Author
+- Book
+
+An Author can have many Books, and each Book belongs to one Author.
+
+### CRUD Operations
+
+The API supports:
+
+- POST - Create records
+- GET - Read records
+- PUT - Update records
+- DELETE - Delete records
+
+### Model Association
+
+Author hasMany Books.
+
+Book belongsTo Author.
+
+### Testing
+
+Tests include:
+
+- 404 bad route
+- 404 bad method
+- POST
+- GET all
+- GET one
+- PUT
+- DELETE
+
+### Pull Request
+
+Lab 04 PR: https://github.com/Naomi0585/api-server/pull/3
+
+### Deployed Server
+
+PASTE-YOUR-RENDER-URL: 
